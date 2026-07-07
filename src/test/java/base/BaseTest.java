@@ -79,27 +79,21 @@ public class BaseTest {
     }
 
     private WebDriver createDriver(String browserValue) {
-        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
         String browser = browserValue == null ? "chrome" : browserValue.trim().toLowerCase();
 
         switch (browser) {
             case "chrome":
                 ChromeOptions chromeOptions = new ChromeOptions();
-                if (headless) {
-                    chromeOptions.addArguments("--headless=new");
-                }
+                chromeOptions.addArguments("--headless");
+                chromeOptions.addArguments("--start-maximized");
                 return new ChromeDriver(chromeOptions);
             case "firefox":
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
-                if (headless) {
-                    firefoxOptions.addArguments("--headless");
-                }
+                firefoxOptions.addArguments("--headless");
                 return new FirefoxDriver(firefoxOptions);
             case "edge":
                 EdgeOptions edgeOptions = new EdgeOptions();
-                if (headless) {
-                    edgeOptions.addArguments("--headless=new");
-                }
+                edgeOptions.addArguments("--headless=new");
                 return new EdgeDriver(edgeOptions);
             default:
                 Assert.fail(browserValue + " is not a valid browser. Use chrome, firefox, or edge.");
