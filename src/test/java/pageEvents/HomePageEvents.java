@@ -1,34 +1,24 @@
 package pageEvents;
 
-import java.sql.Driver;
 import java.util.List;
-import base.BaseTest;
 
 import org.openqa.selenium.By;
-//import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import base.BaseTest;
 import pageObjects.HomePageElements;
 
 public class HomePageEvents {
-	
 
-	public List<WebElement> getPublicationOptions()	{
-		List<WebElement> options = base.BaseTest.driver.findElements(HomePageElements.publicationOptions);
-		return options;
-	
-	}
+    public List<WebElement> getPublicationOptions() {
+        return BaseTest.getDriver().findElements(HomePageElements.publicationOptions);
+    }
 
-	public boolean isAdTypeSelected(By radioButton) {
-			if(base.BaseTest.driver.findElement(radioButton).isSelected()) {
-				return true;
-			}
-		return false;
-	}
+    public boolean isAdTypeSelected(By radioButton) {
+        return BaseTest.getDriver().findElement(radioButton).isSelected();
+    }
 
-	public List<WebElement> getCategoryOptions()	{
-		List<WebElement> options = base.BaseTest.driver.findElements(HomePageElements.categoryOptions);
-		return options;
-	
-	}
+    public List<WebElement> getCategoryOptions() {
+        return BaseTest.getDriver().findElements(HomePageElements.categoryOptions);
+    }
 }

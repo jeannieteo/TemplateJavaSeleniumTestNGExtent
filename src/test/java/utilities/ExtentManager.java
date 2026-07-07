@@ -1,7 +1,8 @@
 package utilities;
 
 import java.io.File;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
@@ -9,14 +10,13 @@ import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 public class ExtentManager {
     private static ExtentReports extent;
-    private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    private static final ThreadLocal<ExtentTest> test = new ThreadLocal<>();
 
-    public static ExtentReports getExtentReports() {
+    public static synchronized ExtentReports getExtentReports() {
         if (extent == null) {
-            // Extent report setup via ExtentManager
-            Date date = new Date();
-            String dateS = date.toString().replaceAll(":", "").replaceAll(" ", "");
-            String reportPath = System.getProperty("user.dir") + File.separator + "reports" + File.separator + dateS + "_report.html";
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String reportPath = System.getProperty("user.dir") + File.separator + "reports" + File.separator
+                    + timestamp + "_report.html";
             ExtentSparkReporter htmlReporter = new ExtentSparkReporter(reportPath);
             extent = new ExtentReports();
             extent.attachReporter(htmlReporter);

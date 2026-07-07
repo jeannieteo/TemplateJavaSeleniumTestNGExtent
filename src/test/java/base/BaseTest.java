@@ -1,13 +1,12 @@
 package base;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.Date;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -17,6 +16,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -29,12 +29,12 @@ import utilities.ExtentManager;
 
 public class BaseTest {
 
-    public static WebDriver driver;
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+    private static final Duration IMPLICIT_WAIT = Duration.ofSeconds(10);
 
     @BeforeTest
     public void beforeTestMethod() {
-        ExtentManager.getExtentReports(); // Initializes if not already
-        // Optionally, you can modify ExtentManager to accept a custom path if needed
+        ExtentManager.getExtentReports();
     }
 
     @AfterTest
@@ -44,32 +44,15 @@ public class BaseTest {
 
     @Parameters("browser")
     @BeforeMethod
-    public void beforeMethodMethod(String browserValue, Method testMethod) {
-        // Create and set ExtentTest for this test method
+    public void beforeMethodMethod(@Optional("chrome") String browserValue, Method testMethod) {
         ExtentTest extentTest = ExtentManager.getExtentReports().createTest(testMethod.getName());
         ExtentManager.setTest(extentTest);
 
-        // Setup WebDriver
-        if (browserValue.equalsIgnoreCase("chrome")) {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--headless=new"); // Enable headless mode
-
-            driver = new ChromeDriver(chromeOptions);
-
-        } else if (browserValue.equalsIgnoreCase("firefox")) {
-            FirefoxOptions firefoxOptions = new FirefoxOptions();
-            firefoxOptions.addArguments("--headless=new"); // Enable headless mode
-            driver = new FirefoxDriver(firefoxOptions);
-
-        } else if (browserValue.equalsIgnoreCase("edge")) {
-            driver = new EdgeDriver();
-            
-        } else {
-            Assert.fail(browserValue + " : not valid browser");
-        }
+        WebDriver driver = createDriver(browserValue);
+        DRIVER.set(driver);
         driver.get(Constants.url);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-        driver.manage().window().maximize(); //maximize window to see whole page
+        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT);
+        driver.manage().window().maximize();
     }
 
     @AfterMethod
@@ -83,7 +66,44 @@ public class BaseTest {
         } else if (result == ITestResult.SUCCESS) {
             extentTest.log(Status.PASS, MarkupHelper.createLabel(testresult.getName() + " : " + Status.PASS, ExtentColor.GREEN));
         }
-        driver.quit();
+        WebDriver driver = getDriver();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();
+        }
         ExtentManager.removeTest();
+    }
+
+    public static WebDriver getDriver() {
+        return DRIVER.get();
+    }
+
+    private WebDriver createDriver(String browserValue) {
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
+        String browser = browserValue == null ? "chrome" : browserValue.trim().toLowerCase();
+
+        switch (browser) {
+            case "chrome":
+                ChromeOptions chromeOptions = new ChromeOptions();
+                if (headless) {
+                    chromeOptions.addArguments("--headless=new");
+                }
+                return new ChromeDriver(chromeOptions);
+            case "firefox":
+                FirefoxOptions firefoxOptions = new FirefoxOptions();
+                if (headless) {
+                    firefoxOptions.addArguments("--headless");
+                }
+                return new FirefoxDriver(firefoxOptions);
+            case "edge":
+                EdgeOptions edgeOptions = new EdgeOptions();
+                if (headless) {
+                    edgeOptions.addArguments("--headless=new");
+                }
+                return new EdgeDriver(edgeOptions);
+            default:
+                Assert.fail(browserValue + " is not a valid browser. Use chrome, firefox, or edge.");
+                return null;
+        }
     }
 }

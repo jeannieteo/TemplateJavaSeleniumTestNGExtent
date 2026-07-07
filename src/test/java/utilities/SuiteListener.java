@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import com.aventstack.extentreports.ExtentTest;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.testng.IAnnotationTransformer;
@@ -15,30 +17,36 @@ import org.testng.annotations.ITestAnnotation;
 
 import base.BaseTest;
 
-public class SuiteListener implements ITestListener, IAnnotationTransformer{
-	
-	public void onTestFailure(ITestResult result) {
-    // Take screenshot as Base64
-    String base64Screenshot = ((TakesScreenshot) BaseTest.driver).getScreenshotAs(OutputType.BASE64);
+public class SuiteListener implements ITestListener, IAnnotationTransformer {
 
-    // Attach to Extent Report
-    // Assuming you have a way to get the current ExtentTest instance, e.g., ExtentManager.getTest()
-    ExtentManager.getTest().fail("Test Failed. Screenshot attached.")
-        .addScreenCaptureFromBase64String(base64Screenshot, result.getMethod().getMethodName());
+    @Override
+    public void onTestFailure(ITestResult result) {
+        WebDriver driver = BaseTest.getDriver();
+        ExtentTest test = ExtentManager.getTest();
+        if (!(driver instanceof TakesScreenshot) || test == null) {
+            return;
+        }
 
-    // Optionally, still save the screenshot file
-    String filename = System.getProperty("user.dir") + File.separator + "screenshots" + File.separator + result.getMethod().getMethodName() + ".png";
-    File file = ((TakesScreenshot) BaseTest.driver).getScreenshotAs(OutputType.FILE);
-    try {
-        FileUtils.copyFile(file, new File(filename));
-    } catch (IOException e) {
-        e.printStackTrace();
+        TakesScreenshot screenshotDriver = (TakesScreenshot) driver;
+        String testName = result.getMethod().getMethodName();
+        String base64Screenshot = screenshotDriver.getScreenshotAs(OutputType.BASE64);
+
+        test.fail("Test failed. Screenshot attached.")
+                .addScreenCaptureFromBase64String(base64Screenshot, testName);
+
+        File screenshotDirectory = new File(System.getProperty("user.dir"), "screenshots");
+        File screenshotFile = new File(screenshotDirectory, testName + ".png");
+        try {
+            FileUtils.forceMkdir(screenshotDirectory);
+            FileUtils.copyFile(screenshotDriver.getScreenshotAs(OutputType.FILE), screenshotFile);
+        } catch (IOException e) {
+            test.warning("Unable to save screenshot file: " + e.getMessage());
+        }
     }
-}
-	
-	 public void transform(
-		  ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-		  annotation.setRetryAnalyzer(RetryAnalyzer.class);  
-		  }
 
+    @Override
+    public void transform(
+            ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
+        annotation.setRetryAnalyzer(RetryAnalyzer.class);
+    }
 }
