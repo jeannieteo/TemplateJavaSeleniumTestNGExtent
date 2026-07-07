@@ -53,11 +53,12 @@ public class BaseTest {
         if (browserValue.equalsIgnoreCase("chrome")) {
             ChromeOptions chromeOptions = new ChromeOptions();
             chromeOptions.addArguments("--headless=new"); // Enable headless mode
+
             driver = new ChromeDriver(chromeOptions);
 
         } else if (browserValue.equalsIgnoreCase("firefox")) {
             FirefoxOptions firefoxOptions = new FirefoxOptions();
-            firefoxOptions.addArguments("--headless=new"); // Enable hedless mode
+            firefoxOptions.addArguments("--headless=new"); // Enable headless mode
             driver = new FirefoxDriver(firefoxOptions);
 
         } else if (browserValue.equalsIgnoreCase("edge")) {
@@ -68,6 +69,7 @@ public class BaseTest {
         }
         driver.get(Constants.url);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+        driver.manage().window().maximize(); //maximize window to see whole page
     }
 
     @AfterMethod
