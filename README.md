@@ -4,25 +4,25 @@ This is a Java(language) + Selenium(library) + TestNg(test library) + Maven(depe
 ### Folders 
 #### src/test/java
 
-base
+base 
  ├── BaseTest.java
 
-driver
- ├── DriverFactory.java
- ├── DriverManager.java
+driver 
+ ├── DriverFactory.java 
+ ├── DriverManager.java 
 
-pages
- ├── LoginPage.java
- ├── HomePage.java
+pages 
+ ├── LoginPage.java 
+ ├── HomePage.java 
 
-utilities
- ├── ConfigReader.java
- ├── ScreenshotUtil.java
- ├── WaitUtils.java
- ├── ExtentManager.java
+utilities 
+ ├── ConfigReader.java 
+ ├── ScreenshotUtil.java 
+ ├── WaitUtils.java 
+ ├── ExtentManager.java 
 
-listeners
- ├── TestListener.java
+listeners 
+ ├── TestListener.java 
 
-retry
- ├── RetryAnalyzer.java
+retry 
+ ├── RetryAnalyzer.java 
