@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
+
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import base.BaseTest;
+import driver.DriverManager;
 import pageEvents.HomePageEvents;
 import pageObjects.HomePageElements;
 import utilities.CsvReaderOptions;
@@ -39,9 +41,10 @@ public class HomePageTests extends BaseTest {
 
     @Test
     public void selectAdType() {
-        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(10));
-        Actions action = new Actions(getDriver());
-        WebElement runOnRadio = getDriver().findElement(HomePageElements.radioRunOn);
+        WebDriver driver = DriverManager.getDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        Actions action = new Actions(driver);
+        WebElement runOnRadio = driver.findElement(HomePageElements.radioRunOn);
         
         action.scrollToElement(runOnRadio).perform();
         wait.until(ExpectedConditions.elementToBeClickable(runOnRadio));

@@ -15,13 +15,13 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.annotations.ITestAnnotation;
 
-import base.BaseTest;
+import driver.DriverManager;
 
 public class SuiteListener implements ITestListener, IAnnotationTransformer {
 
     @Override
     public void onTestFailure(ITestResult result) {
-        WebDriver driver = BaseTest.getDriver();
+        WebDriver driver = DriverManager.getDriver();
         ExtentTest test = ExtentManager.getTest();
         if (!(driver instanceof TakesScreenshot) || test == null) {
             return;
